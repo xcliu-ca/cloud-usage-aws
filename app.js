@@ -300,7 +300,7 @@ ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.p
 \`\`\`
 config\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam/,"subteam")}
+${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"subteam-")}
 \`\`\`
 `,
       channel: channel.value
