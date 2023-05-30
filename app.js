@@ -99,7 +99,7 @@ const clusters_active = computed(() => Object.entries(aws_ec2_clusters.value)
 )
 const clusters_notify = computed(() => clusters_active.value
   .filter(c => c.spending === "test")
-  .filter(c => new Date() - new Date(c.launch) > MAP_ACTIONS[c.owner].notify * 60 * 60 * 1000)
+  .filter(c => new Date() - new Date(c.launch) > (MAP_ACTIONS[c.owner].notify || 4) * 60 * 60 * 1000)
 )
 
 vcore.watchDeep(aws_vpc, () => {
