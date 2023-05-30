@@ -102,12 +102,14 @@ vcore.watchDeep(aws_ec2, () => {
     }))
     console.log(clusters)
     clusters_notify.value = clusters.filter(c => new Date() - new Date(c.launch) > MAP_ACTIONS[c.owner].notify * 60 * 60 * 1000)
-    code.value = JSON.stringify(clusters_notify.value.map(c => Object.assign({}, c, {launch: vcore.useTimeAgo(new Date(c.launch)).value})), "", 2)
-    subject.value = `notifying long run aws clusters`
-    clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` <@${MAP_ACTIONS[owner].mention}> `)
-    slack.chat.postMessage({type: "mrkdwn", text: text.value, channel: channel.value})
-      .then(() => flag_slack_working.value = true)
-      .catch(() => flag_slack_working.value = false)
+    if (clusters_notify.value.length > 0) {
+      code.value = JSON.stringify(clusters_notify.value.map(c => Object.assign({}, c, {launch: vcore.useTimeAgo(new Date(c.launch)).value})), "", 2)
+      subject.value = `notifying long run aws clusters`
+      clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` <@${MAP_ACTIONS[owner].mention}> `)
+      slack.chat.postMessage({type: "mrkdwn", text: text.value, channel: channel.value})
+        .then(() => flag_slack_working.value = true)
+        .catch(() => flag_slack_working.value = false)
+    }
   }, 200)
 })
 
