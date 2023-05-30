@@ -298,6 +298,10 @@ vcore.watchThrottled(clusters_active, () => {
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x instances    " + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
+config\n
+\`\`\`
+${JSON.stringify(MAP_ACTIONS,"", 2)}
+\`\`\`
 `,
       channel: channel.value
     }).then(() => flag_slack_working.value = true)
