@@ -287,7 +287,7 @@ vcore.watchThrottled(code, () => {
 watch(clusters_notify, () => {
     if (clusters_notify.value.length > 0) {
       subject.value = `:warning: long running aws clusters`
-      clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` ${MAP_ACTIONS[owner].mention} `)
+      clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` ${MAP_ACTIONS[owner].mention || "mentions"} `)
       console.log(text.value)
       console.log(blocks.value)
       code.value = JSON.stringify(clusters_notify.value.map(c => Object.assign({}, c, {launch: vcore.useTimeAgo(new Date(c.launch)).value})), "", 2)
