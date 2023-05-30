@@ -12,6 +12,8 @@ echo -e "[default]\naws_access_key_id = $AWS_ACCESS_KEY\naws_secret_access_key =
 
 aws --version
 
-npm install
+curl -o app.js https://raw.githubusercontent.com/xcliu-ca/cloud-usage-aws/main/app.js
+curl -o package.json https://raw.githubusercontent.com/xcliu-ca/cloud-usage-aws/main/package.json
 
+npm install
 node app.js

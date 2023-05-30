@@ -1,5 +1,5 @@
 podman rmi lospringliu/cloudreporter:latest 
 podman build --platform linux/arm64 -t lospringliu/cloudreporter:latest .
+podman push lospringliu/cloudreporter:latest docker.io/lospringliu/cloudreporter:latest
 #sleep 3
-#podman push lospringliu/roks-enabler:latest quay.io/cicdtest/roks-enabler:latest
-#podman push lospringliu/roks-enabler:latest docker.io/lospringliu/roks-sync:latest  
+#podman push lospringliu/cloudreporter:latest quay.io/cidtest/cloudreporter:latest
