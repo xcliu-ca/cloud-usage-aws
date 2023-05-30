@@ -6,6 +6,8 @@
 # ln -sf /$NODE_BINARY/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm;
 # ln -sf /$NODE_BINARY/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx;
 
+[ -f /travis/travis.env ] && source /travis/travis.env || echo no travis.env to source with
+
 mkdir -p ~/.aws
 echo -e "[default]\nregion = $AWS_REGION" > ~/.aws/config
 echo -e "[default]\naws_access_key_id = $AWS_ACCESS_KEY\naws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
