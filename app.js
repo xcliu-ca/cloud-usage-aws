@@ -298,7 +298,7 @@ vcore.watchThrottled(clusters_active, () => {
     slack.chat.postMessage({
       text: `:info_2: current active aws clusters\n
 \`\`\`
-${clusters_active.value.map(cluster => cluster.name.padEnd(32) + cluster.owner.padEnd(32) + cluster.spending.padEnd(12) + cluster.instances + " x instances").join("\n")}
+${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x instances    " + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
 `,
       channel: channel.value
