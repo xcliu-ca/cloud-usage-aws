@@ -2,6 +2,10 @@
 
 ## Generate aws usage report alerts [and optionally cleaning]
 
+## Requirements
+- aws cli
+- node.js
+
 ## Environment Variables
 
 ### required
