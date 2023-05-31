@@ -266,7 +266,7 @@ const blocks = computed(() => [
   {
     type: "section",
     text: {
-      type: "plain_text",
+      type: "mrkdwn",
       text: subject.value
     }
   },
@@ -300,7 +300,7 @@ ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.p
 \`\`\`
 config\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2)}
+${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-")}
 \`\`\`
 `,
       channel: channel.value
