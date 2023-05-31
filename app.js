@@ -10,8 +10,8 @@ const { WebClient } = require('@slack/web-api')
 
 // constants
 const MAP_ACTIONS = {
-  "ciddread@us.ibm.com": {mention: "<!subteam^icp-cicd>", notify: 3, cleanup: 4}, // need group id
-  "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^icp-sert>", notify: 4}, // need group id
+  "ciddread@us.ibm.com": {mention: "<!subteam^SCSNVULBD>", notify: 3, cleanup: 4}, // need group id
+  "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^SN8N9QUF9>", notify: 4}, // need group id
   "unknown@ibm.com": {mention: "<@" + process.env.SLACK_MENTION + ">", notify: 4}
 }
 // reactive variables 
@@ -300,7 +300,7 @@ ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.p
 \`\`\`
 config\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"subteam-")}
+${JSON.stringify(MAP_ACTIONS,"", 2)}
 \`\`\`
 `,
       channel: channel.value
