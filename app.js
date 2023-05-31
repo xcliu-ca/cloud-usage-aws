@@ -57,7 +57,7 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
       } else {
         instance.owner = "unknown@ibm.com"
       }
-      instance.cluster = instance.name.replace(/-worker-.*/,"").replace(/-master-.*/,"")
+      instance.cluster = instance.name.replace(/-infra-.*/,"").replace(/-worker-.*/,"").replace(/-master-.*/,"")
     } else if (instance.Tags.findIndex(tag => tag.Key === "eks:cluster-name") !== -1) {
       if (/cicd-|prow-/.test(instance.name)) {
         instance.owner = "cicdread@ca.ibm.com"
