@@ -11,7 +11,7 @@ const { WebClient } = require('@slack/web-api')
 // constants
 const MAP_ACTIONS = {
   "ciddread@us.ibm.com": {mention: "<!subteam^SCSNVULBD>", notify: 3, cleanup: 4}, // need group id
-  "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^SN8N9QUF9>", notify: 8}, // need group id
+  "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^SN8N9QUF9>", notify: 4}, // need group id
   "unknown@ibm.com": {mention: "<@" + process.env.SLACK_MENTION + ">", notify: 4}
 }
 // reactive variables 
@@ -57,7 +57,7 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
       } else {
         instance.owner = "unknown@ibm.com"
       }
-      instance.cluster = instance.name.replace(/-worker-.*/,"")
+      instance.cluster = instance.name.replace(/-worker-.*/,"").replace(/-master-.*/,"")
     } else if (instance.Tags.findIndex(tag => tag.Key === "eks:cluster-name") !== -1) {
       if (/cicd-|prow-/.test(instance.name)) {
         instance.owner = "cicdread@ca.ibm.com"
@@ -99,7 +99,7 @@ const clusters_active = computed(() => Object.entries(aws_ec2_clusters.value)
 )
 const clusters_notify = computed(() => clusters_active.value
   .filter(c => c.spending === "test")
-  .filter(c => new Date() - new Date(c.launch) > (MAP_ACTIONS[c.owner].notify || 4) * 60 * 60 * 1000)
+  .filter(c => new Date() - new Date(c.launch) > (MAP_ACTIONS.hasOwnProperty(c.owner) ? MAP_ACTIONS[c.owner].notify : 4) * 60 * 60 * 1000)
 )
 
 // periodically refresh querys and status
@@ -324,5 +324,5 @@ function terminate() {
     server.close()
     clearInterval(interval_refresh)
     clearInterval(interval_status)
-  }, 2 * 6 * 1000)
+  }, 60 * 1000)
 }
