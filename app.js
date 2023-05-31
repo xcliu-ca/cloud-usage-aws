@@ -296,13 +296,13 @@ vcore.watchThrottled(clusters_active, () => {
     slack.chat.postMessage({
       text: `:info_2: current active aws clusters\n
 \`\`\`
-${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x instances    " + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
+${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
 `,
       channel: channel.value
     }).then(() => flag_slack_working.value = true)
       .catch(() => flag_slack_working.value = false)
-  }, { throttle: 12 * 60 * 60 * 1000 })
+  }, { throttle: 3 * 60 * 60 * 1000 })
 
 slack.chat.postMessage({
   text: `:info_2: configuration\n
