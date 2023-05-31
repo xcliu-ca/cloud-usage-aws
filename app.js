@@ -305,15 +305,17 @@ ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.p
       .catch(() => flag_slack_working.value = false)
   }, { throttle: 3 * 60 * 60 * 1000 })
 
-slack.chat.postMessage({
-  text: `:info_2: configuration\n
+if (process.env.RUN_ONCE !== "yes") {
+  slack.chat.postMessage({
+    text: `:info_2: configuration\n
 \`\`\`
 ${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/..xcliu/g,"mention-xcliu")}
 \`\`\`
 `,
-  channel: channel.value
-}).then(() => flag_slack_working.value = true)
-      .catch(() => flag_slack_working.value = false)
+    channel: channel.value
+  }).then(() => flag_slack_working.value = true)
+    .catch(() => flag_slack_working.value = false)
+}
 
 // function terminate the whole app
 function terminate() {
