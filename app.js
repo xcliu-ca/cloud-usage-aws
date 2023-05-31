@@ -137,8 +137,8 @@ watch(aws_query_ec2, () => {
 
 // periodically refresh querys and status
 status().then(() => refresh()).then(() => status())
-setInterval(refresh, 2 * 60 * 1000)
-setInterval(status, 60 * 1000)
+const interval_refresh = setInterval(refresh, 2 * 60 * 1000)
+const interval_status = setInterval(status, 60 * 1000)
 
 // for koa application
 function APIError (code, message) {
@@ -298,12 +298,18 @@ vcore.watchThrottled(clusters_active, () => {
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x instances    " + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
-config\n
-\`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/..xcliu/g,"mention-xcliu")}
-\`\`\`
 `,
       channel: channel.value
     }).then(() => flag_slack_working.value = true)
       .catch(() => flag_slack_working.value = false)
   }, { throttle: 12 * 60 * 60 * 1000 })
+
+slack.chat.postMessage({
+  text: `:info_2: configuration\n
+\`\`\`
+${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/..xcliu/g,"mention-xcliu")}
+\`\`\`
+`,
+  channel: channel.value
+}).then(() => flag_slack_working.value = true)
+      .catch(() => flag_slack_working.value = false)
