@@ -27,7 +27,7 @@ const flag_slack_working = ref(false)
 
 // slack related
 const slack = new WebClient(process.env.SLACK_TOKEN)
-const channel = ref(process.env.SLACK_CHANNEL)
+const channel = ref(process.env.SLACK_CHANNEL || "#private-xcliu")
 const subject = ref('Some slack message <@xcliu>')
 const code = ref('console.log("hello slack")')
 const text = computed(() => `${subject.value}\n\`\`\`\n${code.value}\n\`\`\`\n`)
@@ -102,6 +102,12 @@ const clusters_notify = computed(() => clusters_active.value
   .filter(c => new Date() - new Date(c.launch) > (MAP_ACTIONS[c.owner].notify || 4) * 60 * 60 * 1000)
 )
 
+// periodically refresh querys and status
+status().then(() => refresh()).then(() => status())
+const interval_refresh = setInterval(refresh, 2 * 60 * 1000)
+const interval_status = setInterval(status, 60 * 1000)
+if (process.env.RUN_ONCE === "yes") { terminate() }
+
 vcore.watchDeep(aws_vpc, () => {
   console.log(`total vpc instances: ${Object.keys(aws_vpc.value).length}`)
 })
@@ -134,11 +140,6 @@ watch(aws_query_ec2, () => {
     })
   })
 })
-
-// periodically refresh querys and status
-status().then(() => refresh()).then(() => status())
-const interval_refresh = setInterval(refresh, 2 * 60 * 1000)
-const interval_status = setInterval(status, 60 * 1000)
 
 // for koa application
 function APIError (code, message) {
@@ -194,7 +195,7 @@ app.use(async (ctx, next) => {
   await next()
 });
 
-app.listen(3000);
+const server = app.listen(3000);
 console.log(chalk.cyan('api started at port 3000...'))
 
 // function to query status
@@ -313,3 +314,13 @@ ${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/.
   channel: channel.value
 }).then(() => flag_slack_working.value = true)
       .catch(() => flag_slack_working.value = false)
+
+// function terminate the whole app
+function terminate() {
+  setTimeout(() => {
+    console.log(chalk.red(`... terminating app`))
+    server.close()
+    clearInterval(interval_refresh)
+    clearInterval(interval_status)
+  }, 2 * 6 * 1000)
+}
