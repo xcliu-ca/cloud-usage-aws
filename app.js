@@ -51,7 +51,7 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
     if (instance.Tags.findIndex(tag => tag.Key === "red-hat-managed") !== -1) {
       // rosa cluster
       if (/cicd-/.test(instance.name)) {
-        instance.owner = "cicdread@ca.ibm.com"
+        instance.owner = "cicdread@us.ibm.com"
       } else if (/sert-/.test(instance.name)) {
         instance.owner = "c3cvt3vm@ca.ibm.com"
       } else {
@@ -60,7 +60,7 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
       instance.cluster = instance.name.replace(/-infra-.*/,"").replace(/-worker-.*/,"").replace(/-master-.*/,"")
     } else if (instance.Tags.findIndex(tag => tag.Key === "eks:cluster-name") !== -1) {
       if (/cicd-|prow-/.test(instance.name)) {
-        instance.owner = "cicdread@ca.ibm.com"
+        instance.owner = "cicdread@us.ibm.com"
       } else if (/sert-/.test(instance.name)) {
         instance.owner = "c3cvt3vm@ca.ibm.com"
       } else {
