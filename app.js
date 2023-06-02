@@ -21,6 +21,7 @@ const aws_query_vpc = ref({})
 const aws_query_vpc_ca = ref({})
 const aws_ec2 = ref({})
 const aws_vpc = ref({})
+const aws_cost_estimate = ref({Amount: "estimation_cost"})
 // global flags
 const flag_awscli_working = ref(false)
 const flag_slack_working = ref(false)
@@ -104,8 +105,8 @@ const clusters_notify = computed(() => clusters_active.value
 
 // periodically refresh querys and status
 status().then(() => refresh()).then(() => status())
-const interval_refresh = setInterval(refresh, 2 * 60 * 1000)
-const interval_status = setInterval(status, 60 * 1000)
+const interval_refresh = setInterval(refresh, 10 * 60 * 1000)
+const interval_status = setInterval(status, 3 * 60 * 1000)
 if (process.env.RUN_ONCE === "yes") { terminate() }
 
 vcore.watchDeep(aws_vpc, () => {
@@ -147,6 +148,7 @@ function APIError (code, message) {
   this.message = message || ''
   this.flag_awscli_working = flag_awscli_working.value
   this.flag_slack_working = flag_slack_working.value
+  this.estimated_cost = aws_cost_estimate.value.Amount
 }
 
 const app = new Koa();
@@ -165,7 +167,8 @@ app.use(async (ctx, next) => {
   ctx.rest = (data) => {
     ctx.response.body = Object.assign(data, {
       flag_awscli_working: flag_awscli_working.value,
-      flag_slack_working: flag_slack_working.value
+      flag_slack_working: flag_slack_working.value,
+      estimated_cost: aws_cost_estimate.value.Amount
     })
   }
   try {
@@ -176,7 +179,8 @@ app.use(async (ctx, next) => {
       code: e.code || 'internal:unknown_error',
       message: e.message || '',
       flag_awscli_working: flag_awscli_working.value,
-      flag_slack_working: flag_slack_working.value
+      flag_slack_working: flag_slack_working.value,
+      estimated_cost: aws_cost_estimate.value.Amount
     }
   }
 })
@@ -210,6 +214,9 @@ async function status(url_addr="http://127.0.0.1:3000", timeout=20) {
 // function to refresh with imagecontentsourcepolicy and global pull secret
 async function refresh () {
   console.log(chalk.green(`... refreshing information`))
+  try {
+    aws_cost_estimate.value = JSON.parse((await execa.command(`aws ce get-cost-forecast --time-period Start=${new Date().toJSON().replace(/T.*/,"")},End=${new Date(new Date().setFullYear(new Date().getFullYear(), new Date().getMonth() + 1,0)).toJSON().replace(/T.*/,"")} --metric=UNBLENDED_COST --granularity=MONTHLY`, {shell: true})).stdout).Total
+  } catch (e) {}
   try {
     aws_query_vpc_ca.value = JSON.parse((await execa.command('aws ec2 describe-vpcs --region ca-central-1', {shell: true})).stdout)
     flag_awscli_working.value = true
@@ -288,7 +295,7 @@ watch(clusters_notify, () => {
 
 vcore.watchThrottled(clusters_active, () => {
     slack.chat.postMessage({
-      text: `:info_2: current active aws clusters\n
+      text: `:info_2: current active aws clusters [estimates USD ${aws_cost_estimate.value.Amount}]\n
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
