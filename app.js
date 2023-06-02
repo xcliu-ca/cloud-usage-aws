@@ -12,7 +12,7 @@ const { WebClient } = require('@slack/web-api')
 const MAP_ACTIONS = {
   "ciddread@us.ibm.com": {mention: "<!subteam^SCSNVULBD>", notify: 3, cleanup: 4}, // need group id
   "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^SN8N9QUF9>", notify: 8}, // need group id
-  "unknown@ibm.com": {mention: "<@" + process.env.SLACK_MENTION + ">", notify: 4}
+  // "unknown@ibm.com": {mention: "<@" + process.env.SLACK_MENTION + ">", notify: 4}
 }
 // reactive variables 
 const aws_query_ec2 = ref({})
