@@ -31,6 +31,7 @@ const slack = new WebClient(process.env.SLACK_TOKEN)
 const channel = ref(process.env.SLACK_CHANNEL || "#private-xcliu")
 const subject = ref('Some slack message <@xcliu>')
 const code = ref('console.log("hello slack")')
+const code_status = ref('console.log("hello slack")')
 const text = computed(() => `${subject.value}\n\`\`\`\n${code.value}\n\`\`\`\n`)
 
 // compute ec2 instances
@@ -269,6 +270,16 @@ function print_instances () {
   console.log(ec2s.sort())
 }
 
+// function terminate the whole app
+function terminate() {
+  setTimeout(() => {
+    console.log(chalk.red(`... terminating app`))
+    server.close()
+    clearInterval(interval_refresh)
+    clearInterval(interval_status)
+  }, 60 * 1000)
+}
+
 // send slack notifications
 const blocks = computed(() => [
   {
@@ -283,7 +294,14 @@ const blocks = computed(() => [
 vcore.watchThrottled(code, () => {
     slack.chat.postMessage({blocks: JSON.stringify(blocks.value), text: text.value, channel: channel.value})
       .then(() => flag_slack_working.value = true).catch(() => flag_slack_working.value = false)
-  }, { throttle: 60 * 60 * 1000 })
+  }, { throttle: 60 * 60 * 1000 }
+)
+vcore.watchThrottled(code_status, () => {
+    slack.chat.postMessage({text: code_status.value, channel: channel.value})
+      .then(() => flag_slack_working.value = true).catch(() => flag_slack_working.value = false)
+  }, { throttle: 3 * 60 * 60 * 1000 }
+)
+
 watch(clusters_notify, () => {
     if (clusters_notify.value.length > 0) {
       subject.value = `:warning: long running aws clusters`
@@ -293,17 +311,15 @@ watch(clusters_notify, () => {
     }
 })
 
-vcore.watchThrottled(clusters_active, () => {
-    slack.chat.postMessage({
-      text: `:info_2: current active aws clusters [estimates USD ${aws_cost_estimate.value.Amount.replace(/\..*/,"")}]\n
+watch(clusters_active, () => {
+  if (clusters_active.value.length > 0) {
+    code_status.value = `:info_2: current active aws clusters [estimates USD ${aws_cost_estimate.value.Amount.replace(/\..*/,"")}]\n
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
-`,
-      channel: channel.value
-    }).then(() => flag_slack_working.value = true)
-      .catch(() => flag_slack_working.value = false)
-  }, { throttle: 3 * 60 * 60 * 1000 })
+`
+  }
+})
 
 if (process.env.RUN_ONCE !== "yes") {
   slack.chat.postMessage({
@@ -315,14 +331,4 @@ ${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/.
     channel: channel.value
   }).then(() => flag_slack_working.value = true)
     .catch(() => flag_slack_working.value = false)
-}
-
-// function terminate the whole app
-function terminate() {
-  setTimeout(() => {
-    console.log(chalk.red(`... terminating app`))
-    server.close()
-    clearInterval(interval_refresh)
-    clearInterval(interval_status)
-  }, 60 * 1000)
 }
