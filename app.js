@@ -295,7 +295,7 @@ watch(clusters_notify, () => {
 
 vcore.watchThrottled(clusters_active, () => {
     slack.chat.postMessage({
-      text: `:info_2: current active aws clusters [estimates USD ${aws_cost_estimate.value.Amount}]\n
+      text: `:info_2: current active aws clusters [estimates USD ${aws_cost_estimate.value.Amount.replace(/\..*/,"")}]\n
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
