@@ -292,6 +292,7 @@ const blocks = computed(() => [
   }
 ])
 vcore.watchThrottled(code, () => {
+    console.log(code.value)
     slack.chat.postMessage({blocks: JSON.stringify(blocks.value), text: text.value, channel: channel.value})
       .then(() => flag_slack_working.value = true).catch(() => flag_slack_working.value = false)
   }, { throttle: 60 * 60 * 1000 }
