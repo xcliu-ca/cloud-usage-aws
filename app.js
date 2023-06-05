@@ -314,7 +314,7 @@ watch(clusters_notify, () => {
 
 watch(clusters_active, () => {
   if (clusters_active.value.length > 0) {
-    code_status.value = `:info_2: current active aws clusters [estimates :heavy-dollar-sign-emoji: ${aws_cost_estimate.value.Amount.replace(/\..*/,"")}]\n
+    code_status.value = `:info_2: current active aws clusters [estimates :heavy-dollar-sign-emoji:${aws_cost_estimate.value.Amount.replace(/\..*/,"")}]\n
 \`\`\`
 ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")}
 \`\`\`
