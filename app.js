@@ -89,13 +89,13 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
 const clusters_active = computed(() => Object.entries(aws_ec2_clusters.value)
     .map(([cluster,members]) => ({
       name: cluster,
-      owner: members[members.length - 1].owner,
-      launch: members[0].LaunchTime,
-      vpc: members[members.length - 1].VpcId,
-      type: members[members.length - 1].InstanceType,
+      owner: members.at(-1).owner,
+      launch: members.at(0).LaunchTime,
+      vpc: members.at(-1).VpcId,
+      type: members.at(-1).InstanceType,
       // owner: members.map(i => i.owner).filter((value, index, array) => array.indexOf(value) === index),
       // vpc: members.map(i => i.VpcId).filter((value, index, array) => array.indexOf(value) === index),
-      spending: members[0].spendingenv,
+      spending: members.at(0).spendingenv,
       instances: members.length
     }))
 )
