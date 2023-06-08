@@ -50,7 +50,12 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
   })
   .map(instance => {
     instance.name = instance.Tags.find(tag => tag.Key === "Name" || tag.Key === "name").Value
-    if (instance.Tags.findIndex(tag => tag.Key === "red-hat-managed") !== -1) {
+    const tag_owner = instance.Tags.find(tag => tag.Key === "Owner" || tag.Key === "owner")
+    const tag_cluster = instance.Tags.find(tag => tag.Key === "Cluster" || tag.Key === "cluster")
+    if (tag_owner && tag_cluster) {
+      instance.owner = tag_owner.Value.toLowerCase()
+      instance.cluster = tag_cluster.Value.toLowerCase()
+    } else if (instance.Tags.findIndex(tag => tag.Key === "red-hat-managed") !== -1) {
       // rosa cluster
       if (/cicd-/.test(instance.name)) {
         instance.owner = "cicdread@us.ibm.com"
@@ -70,8 +75,8 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
       }
       instance.cluster = instance.Tags.find(tag => tag.Key === "eks:cluster-name").Value.toLowerCase()
     } else {
-      instance.owner = instance.Tags.find(tag => tag.Key === "Owner" || tag.Key === "owner").Value.toLowerCase()
-      instance.cluster = instance.Tags.find(tag => tag.Key === "Cluster" || tag.Key === "cluster").Value.toLowerCase()
+      instance.owner = "unknown@ibm.com"
+      instance.cluster = "unknown-cluster"
     }
     const tag = instance.Tags.find(tag => tag.Key === "Spending_Env" || tag.Key === "spending_env")
     if (tag) {
