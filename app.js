@@ -29,7 +29,7 @@ const flag_slack_working = ref(false)
 // slack related
 const slack = new WebClient(process.env.SLACK_TOKEN)
 const channel = ref(process.env.SLACK_CHANNEL || "#private-xcliu")
-const subject = ref('Some slack message <@xcliu>')
+const subject = ref(`Some slack message <@${process.env.SLACK_MENTION}>`)
 const code = ref('console.log("hello slack")')
 const code_status = ref('console.log("hello slack")')
 const text = computed(() => `${subject.value}\n\`\`\`\n${code.value}\n\`\`\`\n`)
@@ -58,25 +58,25 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
     } else if (instance.Tags.findIndex(tag => tag.Key === "red-hat-managed") !== -1) {
       // rosa cluster
       if (/cicd-/.test(instance.name)) {
-        instance.owner = "cicdread@us.ibm.com"
+        instance.owner = (tag_owner?.Value || "cicdread@us.ibm.com").toLowerCase()
       } else if (/sert-/.test(instance.name)) {
-        instance.owner = "c3cvt3vm@ca.ibm.com"
+        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com").toLowerCase()
       } else {
-        instance.owner = "unknown@ibm.com"
+        instance.owner = (tag_owner?.Value || "unknown@ibm.com").toLowerCase()
       }
-      instance.cluster = instance.name.replace(/-infra-.*/,"").replace(/-worker-.*/,"").replace(/-master-.*/,"")
+      instance.cluster = (tag_cluster?.Value || instance.name.replace(/-infra-.*/,"").replace(/-worker-.*/,"").replace(/-master-.*/,"")).toLowerCase()
     } else if (instance.Tags.findIndex(tag => tag.Key === "eks:cluster-name") !== -1) {
       if (/cicd-|prow-/.test(instance.name)) {
-        instance.owner = "cicdread@us.ibm.com"
+        instance.owner = (tag_owner?.Value || "cicdread@us.ibm.com").toLowerCase()
       } else if (/sert-/.test(instance.name)) {
-        instance.owner = "c3cvt3vm@ca.ibm.com"
+        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com").toLowerCase()
       } else {
-        instance.owner = "unknown@ibm.com"
+        instance.owner = (tag_owner?.Value || "unknown@ibm.com").toLowerCase()
       }
-      instance.cluster = instance.Tags.find(tag => tag.Key === "eks:cluster-name").Value.toLowerCase()
+      instance.cluster = (tag_cluster?.Value || instance.Tags.find(tag => tag.Key === "eks:cluster-name").Value).toLowerCase()
     } else {
-      instance.owner = "unknown@ibm.com"
-      instance.cluster = "unknown-cluster"
+      instance.owner = (tag_owner?.Value || "unknown@ibm.com").toLowerCase()
+      instance.cluster = (tag_cluster?.Value || "unknown-cluster").toLowerCase()
     }
     const tag = instance.Tags.find(tag => tag.Key === "Spending_Env" || tag.Key === "spending_env")
     if (tag) {
@@ -311,7 +311,7 @@ vcore.watchThrottled(code_status, () => {
 watch(clusters_notify, () => {
     if (clusters_notify.value.length > 0) {
       subject.value = `:warning: long running aws clusters`
-      clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` ${MAP_ACTIONS.hasOwnProperty(owner) ? MAP_ACTIONS[owner].mention : "<@xcliu>"} `)
+      clusters_notify.value.map(c => c.owner).filter((value, index, array) => array.indexOf(value) === index).forEach(owner => subject.value += ` ${MAP_ACTIONS.hasOwnProperty(owner) ? MAP_ACTIONS[owner].mention : "<@${process.env.SLACK_MENTION}>"} `)
       // code.value = JSON.stringify(clusters_notify.value.map(c => Object.assign({}, c, {launch: vcore.useTimeAgo(new Date(c.launch)).value})), "", 2)
       code.value = clusters_notify.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.padEnd(24) + cluster.spending.padEnd(12) + cluster.instances + " x " + cluster.type.padEnd(16) + vcore.useTimeAgo(new Date(cluster.launch)).value).join("\n")
     }
@@ -331,7 +331,7 @@ if (process.env.RUN_ONCE !== "yes") {
   slack.chat.postMessage({
     text: `:info_2: configuration\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-").replace(/..xcliu/g,"mention-xcliu")}
+${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-")
 \`\`\`
 `,
     channel: channel.value
