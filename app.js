@@ -330,10 +330,11 @@ ${clusters_active.value.map(cluster => cluster.name.padEnd(24) + cluster.owner.p
 })
 
 if (process.env.RUN_ONCE !== "yes") {
+  const mcode = JSON.stringify(MAP_ACTIONS0,"", 2).replace(/..subteam./g,"mention-")
   slack.chat.postMessage({
     text: `:info_2: configuration\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS0,"", 2).replace(/..subteam./g,"mention-")}
+${mcode}
 \`\`\`
 `,
     channel: channel.value
