@@ -333,7 +333,7 @@ if (process.env.RUN_ONCE !== "yes") {
   slack.chat.postMessage({
     text: `:info_2: configuration\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS0,"", 2).replace(/..subteam./g,"mention-")
+${JSON.stringify(MAP_ACTIONS0,"", 2).replace(/..subteam./g,"mention-")}
 \`\`\`
 `,
     channel: channel.value
