@@ -9,11 +9,13 @@ const { WebClient } = require('@slack/web-api')
 // console.log(Object.keys(execa))
 
 // constants
-const MAP_ACTIONS = {
+const MAP_ACTIONS0 = {
   "ciddread@us.ibm.com": {mention: "<!subteam^SCSNVULBD>", notify: 3, cleanup: 4}, // need group id
   "c3cvt3vm@ca.ibm.com": {mention: "<!subteam^SN8N9QUF9>", notify: 8}, // need group id
   // "unknown@ibm.com": {mention: "<@" + process.env.SLACK_MENTION + ">", notify: 4}
 }
+const MAP_ACTIONS = Object.assign({}, MAP_ACTIONS0)
+Object.keys(MAP_ACTIONS0).forEach(key => MAP_ACTIONS[key.replace(/@/,"-at-")] = MAP_ACTIONS0[key])
 // reactive variables 
 const aws_query_ec2 = ref({})
 const aws_query_ec2_ca = ref({})
@@ -331,7 +333,7 @@ if (process.env.RUN_ONCE !== "yes") {
   slack.chat.postMessage({
     text: `:info_2: configuration\n
 \`\`\`
-${JSON.stringify(MAP_ACTIONS,"", 2).replace(/..subteam./g,"mention-")
+${JSON.stringify(MAP_ACTIONS0,"", 2).replace(/..subteam./g,"mention-")
 \`\`\`
 `,
     channel: channel.value
