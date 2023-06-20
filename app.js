@@ -55,16 +55,16 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
     const tag_owner = instance.Tags.find(tag => tag.Key === "Owner" || tag.Key === "owner")
     const tag_cluster = instance.Tags.find(tag => tag.Key === "Cluster" || tag.Key === "cluster")
     if (tag_owner && tag_cluster) {
-      instance.owner = tag_owner.Value.toLowerCase()
+      instance.owner = tag_owner.Value.replace(/-at-/,"@").toLowerCase()
       instance.cluster = tag_cluster.Value.toLowerCase()
     } else if (instance.Tags.findIndex(tag => tag.Key === "red-hat-managed") !== -1) {
       // rosa cluster
       if (/cicd-/.test(instance.name)) {
-        instance.owner = (tag_owner?.Value || "cicdread@us.ibm.com").toLowerCase()
+        instance.owner = (tag_owner?.Value || "cicdread@us.ibm.com").replace(/-at-/,"@").toLowerCase()
       } else if (/sert-/.test(instance.name)) {
-        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com").toLowerCase()
+        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com")..replace(/-at-/,"@")toLowerCase()
       } else {
-        instance.owner = (tag_owner?.Value || "unknown@ibm.com").toLowerCase()
+        instance.owner = (tag_owner?.Value || "unknown@ibm.com").replace(/-at-/,"@").toLowerCase()
       }
       instance.cluster = (tag_cluster?.Value || instance.name.replace(/-infra-.*/,"").replace(/-worker-.*/,"").replace(/-master-.*/,"")).toLowerCase()
     } else if (instance.Tags.findIndex(tag => tag.Key === "eks:cluster-name") !== -1) {
