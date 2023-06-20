@@ -62,7 +62,7 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
       if (/cicd-/.test(instance.name)) {
         instance.owner = (tag_owner?.Value || "cicdread@us.ibm.com").replace(/-at-/,"@").toLowerCase()
       } else if (/sert-/.test(instance.name)) {
-        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com")..replace(/-at-/,"@")toLowerCase()
+        instance.owner = (tag_owner?.Value || "c3cvt3vm@ca.ibm.com").replace(/-at-/,"@").toLowerCase()
       } else {
         instance.owner = (tag_owner?.Value || "unknown@ibm.com").replace(/-at-/,"@").toLowerCase()
       }
