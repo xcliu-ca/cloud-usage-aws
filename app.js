@@ -350,6 +350,10 @@ function sortInstanceType(x, y) { // x, y ec2 instances
     const power_x = part_x.replace(/xlarge/,"")
     const power_y = part_y.replace(/xlarge/,"")
     return power_y - power_x
+  } else if (/xlarge/.test(part_x) && !/xlarge/.test(part_y)) {
+    return -1
+  } else if (!/xlarge/.test(part_x) && !/xlarge/.test(part_y)) {
+    return 1
   } else if (/large/.test(part_x) && !/large/.test(part_y)) {
     return -1
   } else if (!/large/.test(part_x) && /large/.test(part_y)) {
