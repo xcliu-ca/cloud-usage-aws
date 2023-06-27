@@ -96,10 +96,10 @@ const aws_ec2_clusters = computed(() => aws_ec2_active.value // openshift + rosa
 const clusters_active = computed(() => Object.entries(aws_ec2_clusters.value)
     .map(([cluster,members]) => ({
       name: cluster,
-      owner: members.at(-1).owner,
+      owner: members.at(0).owner,
       launch: members.at(0).LaunchTime,
-      vpc: members.at(-1).VpcId,
-      type: members.at(-1).InstanceType,
+      vpc: members.at(0).VpcId,
+      type: members.at(0).InstanceType,
       // owner: members.map(i => i.owner).filter((value, index, array) => array.indexOf(value) === index),
       // vpc: members.map(i => i.VpcId).filter((value, index, array) => array.indexOf(value) === index),
       spending: members.at(0).spendingenv,
@@ -259,6 +259,7 @@ async function refresh () {
 function reduce_cluster (acc, value) { // each value is an instance
   if (acc.hasOwnProperty(value.cluster)) {
     acc[value.cluster].push(value)
+    acc[value.cluster].sort(sortInstanceType)
   } else {
     acc[value.cluster] = [ value ]
   }
@@ -340,4 +341,20 @@ ${mcode}
     channel: channel.value
   }).then(() => flag_slack_working.value = true)
     .catch(() => flag_slack_working.value = false)
+}
+
+function sortInstanceType(x, y) { // x, y ec2 instances
+  const part_x = x.InstanceType.split(".")[1]
+  const part_y = y.InstanceType.split(".")[1]
+  if (/[0-9]+xlarge/.test(part_x) && /[0-9]+xlarge/.test(part_y)) {
+    const power_x = part_x.replace(/xlarge/,"")
+    const power_y = part_y.replace(/xlarge/,"")
+    return power_y - power_x
+  } else if (/large/.test(part_x) && !/large/.test(part_y)) {
+    return -1
+  } else if (!/large/.test(part_x) && /large/.test(part_y)) {
+    return 1
+  } else {
+    return part_x > part_y ? 1 : -1
+  }
 }
