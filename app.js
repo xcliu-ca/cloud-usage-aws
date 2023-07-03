@@ -131,7 +131,7 @@ vcore.watchDeep(aws_ec2, () => {
 watch(aws_query_vpc, () => {
   aws_query_vpc.value["Vpcs"].forEach(vpc => aws_vpc.value[vpc["VpcId"]] = vpc)
   aws_query_vpc_ca.value["Vpcs"].forEach(vpc => aws_vpc.value[vpc["VpcId"]] = vpc)
-  Object.keys(aws_vpc.value).forEach(key => console.log(key))
+  // Object.keys(aws_vpc.value).forEach(key => console.log(key))
 })
 watch(aws_query_ec2, () => {
   Object.keys(aws_query_ec2_ca.value).forEach(key => {
